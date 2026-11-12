@@ -7,17 +7,15 @@ export function validateConfig(input) {
 
   const intervalSeconds = input.intervalSeconds ?? 30;
   const timeoutSeconds = input.timeoutSeconds ?? 5;
-  const ui = { eyebrow: 'DISPONIBILIDAD HTTP', title: 'Estado de servicios', ...input.ui };
   if (input.ui !== undefined &&
       (!input.ui || typeof input.ui !== 'object' || Array.isArray(input.ui))) {
     throw new Error('ui debe ser un objeto JSON.');
   }
-  for (const field of ['eyebrow', 'title']) {
-    if (typeof ui[field] !== 'string' || !ui[field].trim()) {
-      throw new Error(`ui.${field} debe ser un texto no vacío.`);
-    }
-    ui[field] = ui[field].trim();
+  const ui = { title: input.ui?.title === undefined ? 'Estado de servicios' : input.ui.title };
+  if (typeof ui.title !== 'string' || !ui.title.trim()) {
+    throw new Error('ui.title debe ser un texto no vacío.');
   }
+  ui.title = ui.title.trim();
   for (const [name, value] of Object.entries({ intervalSeconds, timeoutSeconds })) {
     if (!Number.isInteger(value) || value < 1 || value > 2147483) {
       throw new Error(`${name} debe ser un entero entre 1 y 2147483 segundos.`);

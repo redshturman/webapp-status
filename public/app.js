@@ -10,7 +10,6 @@ const details = {
 };
 
 function render(data) {
-  document.querySelector('#eyebrow').textContent = data.ui.eyebrow;
   document.querySelector('#title').textContent = data.ui.title;
   document.title = data.ui.title;
   const rows = data.services.map(service => {

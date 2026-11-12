@@ -19,9 +19,9 @@ function element() {
   };
 }
 
-test('UI renders custom plain-text headings and only codes or brief non-HTTP errors', async () => {
+test('UI renders a single plain-text title and only codes or brief non-HTTP errors', async () => {
   const elements = Object.fromEntries(
-    ['#services', '#connection', '#eyebrow', '#title'].map(id => [id, element()])
+    ['#services', '#connection', '#title'].map(id => [id, element()])
   );
   const services = [
     { statusCode: 200, category: 'http', state: 'up' },
@@ -46,7 +46,8 @@ test('UI renders custom plain-text headings and only codes or brief non-HTTP err
   await vm.runInContext(`${script}\nrefresh();`, context);
   assert.equal(document.title, '<b>Sede norte</b>');
   assert.equal(elements['#title'].textContent, data.ui.title);
-  assert.equal(elements['#eyebrow'].textContent, data.ui.eyebrow);
+  const html = await readFile(new URL('../public/index.html', import.meta.url), 'utf8');
+  assert.doesNotMatch(html, /eyebrow/);
   assert.equal(elements['#connection'].hidden, true);
   assert.deepEqual(elements['#services'].children.map(row => row.children[2].textContent),
     [200, 301, 'Tiempo agotado', 'Error DNS', 'Error TLS', 'Error de conexión', 'Pendiente']);
