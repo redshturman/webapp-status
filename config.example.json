@@ -1,0 +1,16 @@
+{
+  "intervalSeconds": 30,
+  "timeoutSeconds": 5,
+  "services": [
+    {
+      "name": "Portal de ejemplo",
+      "url": "https://example.com/",
+      "acceptedStatusCodes": [200]
+    },
+    {
+      "name": "API con autenticación",
+      "url": "https://example.org/",
+      "acceptedStatusCodes": [200, 401]
+    }
+  ]
+}
