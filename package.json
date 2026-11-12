@@ -3,12 +3,17 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Panel mínimo de disponibilidad HTTP sin dependencias.",
+  "description": "Panel mínimo de disponibilidad HTTP para Node.js y Cloudflare Workers.",
   "engines": {
     "node": ">=20"
   },
   "scripts": {
     "start": "node src/server.js",
-    "test": "node --test"
+    "test": "node --test",
+    "workers:dev": "wrangler dev --local",
+    "workers:deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.160.1"
   }
 }

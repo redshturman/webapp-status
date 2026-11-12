@@ -4,3 +4,7 @@ config.json
 *.key
 *.crt
 coverage/
+.wrangler/
+wrangler.jsonc
+.dev.vars*
+.env*

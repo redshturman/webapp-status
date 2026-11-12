@@ -1,0 +1,25 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "webapp-status",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-11-12",
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": true
+  },
+  "vars": {
+    "STATUS_CONFIG": {
+      "ui": { "title": "Estado de servicios" },
+      "intervalSeconds": 30,
+      "timeoutSeconds": 5,
+      "services": [
+        {
+          "name": "Portal de ejemplo",
+          "url": "https://example.com/",
+          "acceptedStatusCodes": [200]
+        }
+      ]
+    }
+  }
+}

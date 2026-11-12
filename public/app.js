@@ -1,5 +1,6 @@
 const table = document.querySelector('#services');
 const connection = document.querySelector('#connection');
+let refreshMs = 5000;
 const states = { up: 'Disponible', down: 'No disponible', pending: 'Pendiente' };
 const details = {
   pending: 'Pendiente',
@@ -33,6 +34,7 @@ const httpDetails = {
 };
 
 function render(data) {
+  refreshMs = (data.refreshSeconds ?? 5) * 1000;
   document.querySelector('#title').textContent = data.ui.title;
   document.title = data.ui.title;
   const rows = data.services.map(service => {
@@ -80,7 +82,7 @@ async function refresh() {
     connection.textContent = `No se puede actualizar (${error.message}). Los resultados mostrados están desactualizados.`;
     table.classList.add('stale');
   } finally {
-    setTimeout(refresh, 5000);
+    setTimeout(refresh, refreshMs);
   }
 }
 
