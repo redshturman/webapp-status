@@ -32,6 +32,7 @@ export function createMonitor(config) {
       return {
         intervalSeconds: config.intervalSeconds,
         timeoutSeconds: config.timeoutSeconds,
+        ui: { ...config.ui },
         services: results.map(result => ({ ...result }))
       };
     },
