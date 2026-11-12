@@ -19,13 +19,19 @@ function element() {
   };
 }
 
-test('UI renders a single plain-text title and only codes or brief non-HTTP errors', async () => {
+test('UI renders brief HTTP descriptions independently of availability and preserves non-HTTP errors', async () => {
   const elements = Object.fromEntries(
     ['#services', '#connection', '#title'].map(id => [id, element()])
   );
   const services = [
     { statusCode: 200, category: 'http', state: 'up' },
-    { statusCode: 301, category: 'http', state: 'down' },
+    { statusCode: 302, category: 'http', state: 'down' },
+    { statusCode: 401, category: 'http', state: 'up' },
+    { statusCode: 401, category: 'http', state: 'down' },
+    { statusCode: 403, category: 'http', state: 'down' },
+    { statusCode: 404, category: 'http', state: 'down' },
+    { statusCode: 503, category: 'http', state: 'down' },
+    { statusCode: 599, category: 'http', state: 'down' },
     ...['timeout', 'dns', 'tls', 'connection', 'pending'].map(category => ({
       statusCode: null, category, state: category === 'pending' ? 'pending' : 'down'
     }))
@@ -50,14 +56,20 @@ test('UI renders a single plain-text title and only codes or brief non-HTTP erro
   assert.doesNotMatch(html, /eyebrow/);
   assert.equal(elements['#connection'].hidden, true);
   assert.deepEqual(elements['#services'].children.map(row => row.children[2].textContent),
-    [200, 301, 'Tiempo agotado', 'Error DNS', 'Error TLS', 'Error de conexión', 'Pendiente']);
+    ['200 · OK', '302 · Redirección', '401 · Requiere autenticación',
+      '401 · Requiere autenticación', '403 · Acceso denegado', '404 · No encontrado',
+      '503 · Servicio no disponible', '599',
+      'Tiempo agotado', 'Error DNS', 'Error TLS', 'Error de conexión', 'Pendiente']);
+  const rows = elements['#services'].children;
+  assert.equal(rows[2].children[1].children[0].textContent, 'Disponible');
+  assert.equal(rows[3].children[1].children[0].textContent, 'No disponible');
 
   context.fetch = async () => { throw new Error('offline'); };
   await vm.runInContext('refresh()', context);
   assert.equal(elements['#connection'].hidden, false);
   assert.match(elements['#connection'].textContent, /desactualizados/);
   assert.equal(elements['#services'].classList.contains('stale'), true);
-  assert.equal(elements['#services'].children.length, 7);
+  assert.equal(elements['#services'].children.length, services.length);
 
   context.fetch = async () => ({ ok: true, json: async () => data });
   await vm.runInContext('refresh()', context);
