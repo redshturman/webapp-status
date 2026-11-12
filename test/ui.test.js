@@ -39,14 +39,17 @@ test('UI renders brief HTTP descriptions independently of availability and prese
     name: 'Servicio', explanation: 'Do not display this long explanation',
     responseTimeMs: null, checkedAt: null, ...service
   }));
-  const data = { ui: { title: '<b>Sede norte</b>', eyebrow: 'RED INTERNA' }, services };
+  const data = {
+    ui: { title: '<b>Sede norte</b>', eyebrow: 'RED INTERNA' }, services, refreshSeconds: 30
+  };
   const document = {
     querySelector: id => elements[id],
     createElement: element,
     title: ''
   };
+  const delays = [];
   const context = vm.createContext({
-    document, AbortSignal, setTimeout() {},
+    document, AbortSignal, setTimeout(callback, ms) { delays.push(ms); },
     fetch: async () => ({ ok: true, json: async () => data })
   });
   await vm.runInContext(`${script}\nrefresh();`, context);
@@ -55,6 +58,7 @@ test('UI renders brief HTTP descriptions independently of availability and prese
   const html = await readFile(new URL('../public/index.html', import.meta.url), 'utf8');
   assert.doesNotMatch(html, /eyebrow/);
   assert.equal(elements['#connection'].hidden, true);
+  assert.equal(delays.at(-1), 30000);
   assert.deepEqual(elements['#services'].children.map(row => row.children[2].textContent),
     ['200 · OK', '302 · Redirección', '401 · Requiere autenticación',
       '401 · Requiere autenticación', '403 · Acceso denegado', '404 · No encontrado',
@@ -72,8 +76,10 @@ test('UI renders brief HTTP descriptions independently of availability and prese
   assert.equal(elements['#services'].children.length, services.length);
 
   context.fetch = async () => ({ ok: true, json: async () => data });
+  delete data.refreshSeconds;
   await vm.runInContext('refresh()', context);
   assert.equal(elements['#connection'].hidden, true);
   assert.equal(elements['#connection'].textContent, '');
   assert.equal(elements['#services'].classList.contains('stale'), false);
+  assert.equal(delays.at(-1), 5000);
 });

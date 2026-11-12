@@ -6,3 +6,7 @@ config.json
 *.crt
 test
 coverage
+.wrangler
+wrangler.jsonc
+.dev.vars*
+.env*
