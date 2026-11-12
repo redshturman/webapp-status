@@ -33,15 +33,17 @@ test('config defaults and explicit accepted codes', () => {
   }).services[0].acceptedStatusCodes, [200, 401]);
 });
 
-test('UI settings preserve defaults and accept per-site text', () => {
+test('UI title preserves defaults and ignores legacy eyebrow settings', () => {
   const config = configFor('https://example.com');
-  assert.deepEqual(config.ui, { eyebrow: 'DISPONIBILIDAD HTTP', title: 'Estado de servicios' });
+  assert.deepEqual(config.ui, { title: 'Estado de servicios' });
   assert.deepEqual(configFor('https://example.com', { ui: { title: ' Sede norte ' } }).ui,
-    { eyebrow: 'DISPONIBILIDAD HTTP', title: 'Sede norte' });
+    { title: 'Sede norte' });
   assert.deepEqual(configFor('https://example.com', {
     ui: { title: '<b>Panel</b>', eyebrow: 'SITIO A' }
-  }).ui, { title: '<b>Panel</b>', eyebrow: 'SITIO A' });
-  for (const ui of [null, [], 'invalid', { title: '' }, { eyebrow: 4 }]) {
+  }).ui, { title: '<b>Panel</b>' });
+  assert.deepEqual(configFor('https://example.com', { ui: { eyebrow: 4 } }).ui,
+    { title: 'Estado de servicios' });
+  for (const ui of [null, [], 'invalid', { title: '' }, { title: null }, { title: 4 }]) {
     assert.throws(() => configFor('https://example.com', { ui }));
   }
 });
@@ -197,7 +199,7 @@ test('API and page expose fixed routes only and never accept visitor destination
   const response = await fetch(`${url}/api/status`);
   const body = await response.text();
   assert.equal(JSON.parse(body).services[0].state, 'up');
-  assert.deepEqual(JSON.parse(body).ui, { title: 'Sede norte', eyebrow: 'SERVICIOS' });
+  assert.deepEqual(JSON.parse(body).ui, { title: 'Sede norte' });
   assert.ok(!body.includes(target));
   assert.equal(response.headers.get('cache-control'), 'no-store');
   const page = await fetch(url);

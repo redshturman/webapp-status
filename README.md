@@ -17,7 +17,6 @@ Requiere Node.js 20 o posterior. No hace falta ejecutar `npm install`.
 ```json
 {
   "ui": {
-    "eyebrow": "DISPONIBILIDAD HTTP",
     "title": "Estado de servicios"
   },
   "intervalSeconds": 30,
@@ -34,7 +33,7 @@ Requiere Node.js 20 o posterior. No hace falta ejecutar `npm install`.
 
 Los valores por defecto son 30 segundos, 5 segundos y `[200]`, respectivamente. Debe haber al menos un servicio, con nombre único y URL HTTP/HTTPS sin usuario, contraseña ni fragmento. Los tiempos deben ser enteros positivos. Solo el operador elige los destinos desde este archivo: el navegador no puede añadir URLs ni lanzar comprobaciones arbitrarias.
 
-`ui.eyebrow` configura el texto pequeño sobre la cabecera y `ui.title` el título principal y de la pestaña. Ambos deben ser textos no vacíos y se muestran como texto, nunca como HTML. Puedes omitir `ui` o cualquiera de sus campos: se mantienen los valores predeterminados del ejemplo, sin modificar configuraciones existentes. Reinicia después de cambiarlos.
+`ui.title` configura el único título de la pantalla y el de la pestaña. Debe ser un texto no vacío y se muestra como texto, nunca como HTML. Puedes omitir `ui` o `title`: se mantiene el valor predeterminado del ejemplo. El antiguo campo `ui.eyebrow` se ignora para que las configuraciones existentes sigan funcionando; puedes eliminarlo. Reinicia después de cambiar la configuración.
 
 La primera ronda empieza al arrancar, con estado **Pendiente** hasta obtener un resultado. Se comprueban los servicios en paralelo con una petición GET y un límite total por solicitud que incluye DNS y TLS. Se mide hasta recibir las cabeceras; no se descarga ni inspecciona el cuerpo completo. La siguiente ronda comienza 30 segundos después de terminar la anterior (hasta unos 35 segundos entre inicios con la configuración por defecto). La página obtiene los últimos resultados cada 5 segundos; si pierde contacto con el panel, indica que los resultados son antiguos.
 
@@ -44,7 +43,7 @@ La primera ronda empieza al arrancar, con estado **Pendiente** hasta obtener un 
 
 **No disponible** distingue código HTTP no aceptado, fallo DNS, tiempo agotado, fallo TLS y otros errores de conexión. El texto y el color indican el resultado; no se depende únicamente del color.
 
-La columna **Detalle** muestra solo el código cuando hay respuesta HTTP (por ejemplo, `200` o `301`). Sin respuesta muestra un error breve: tiempo agotado, DNS, TLS o conexión; mientras espera, indica pendiente. Las explicaciones ampliadas siguen disponibles en la API. La pantalla no incluye notas técnicas ni mensajes normales de conexión: solo aparece un aviso discreto si falla la actualización, marcando los resultados anteriores como desactualizados hasta recuperarse.
+La columna **Detalle** muestra el código HTTP y una descripción breve cuando se conoce (por ejemplo, `200 · OK`, `302 · Redirección` o `401 · Requiere autenticación`); otros códigos se muestran sin descripción. La etiqueta no cambia la disponibilidad, que depende de `acceptedStatusCodes`, ni presupone SSO o salud de la aplicación. Sin respuesta muestra un error breve: tiempo agotado, DNS, TLS o conexión; mientras espera, indica pendiente. Las explicaciones ampliadas siguen disponibles en la API. La pantalla no incluye notas técnicas ni mensajes normales de conexión: solo aparece un aviso discreto si falla la actualización, marcando los resultados anteriores como desactualizados hasta recuperarse.
 
 Las redirecciones **no se siguen**. Un 301/302 puede apuntar a SSO y no demostrar que la aplicación original funciona. Por defecto es rojo; aceptar explícitamente ese código solo confirma que responde con esa redirección. Un **401** significa que el servidor pide autenticación, no necesariamente que esté caído: añádelo a `acceptedStatusCodes` si esa respuesta es la esperada. Aceptarlo tampoco comprueba credenciales ni funcionalidad. Es preferible una URL de salud sin efectos secundarios, acordada con el propietario del servicio.
 
