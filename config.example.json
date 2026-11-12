@@ -1,4 +1,8 @@
 {
+  "ui": {
+    "eyebrow": "DISPONIBILIDAD HTTP",
+    "title": "Estado de servicios"
+  },
   "intervalSeconds": 30,
   "timeoutSeconds": 5,
   "services": [

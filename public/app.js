@@ -1,15 +1,24 @@
 const table = document.querySelector('#services');
 const connection = document.querySelector('#connection');
-const cadence = document.querySelector('#cadence');
 const states = { up: 'Disponible', down: 'No disponible', pending: 'Pendiente' };
+const details = {
+  pending: 'Pendiente',
+  timeout: 'Tiempo agotado',
+  dns: 'Error DNS',
+  tls: 'Error TLS',
+  connection: 'Error de conexión'
+};
 
 function render(data) {
+  document.querySelector('#eyebrow').textContent = data.ui.eyebrow;
+  document.querySelector('#title').textContent = data.ui.title;
+  document.title = data.ui.title;
   const rows = data.services.map(service => {
     const row = document.createElement('tr');
     const values = [
       service.name,
       states[service.state],
-      service.explanation,
+      service.statusCode ?? details[service.category],
       service.responseTimeMs === null ? '—' : `${service.responseTimeMs} ms`,
       service.checkedAt === null ? '—' : new Date(service.checkedAt).toLocaleString()
     ];
@@ -27,7 +36,6 @@ function render(data) {
     return row;
   });
   table.replaceChildren(...rows);
-  cadence.textContent = `Nueva ronda ${data.intervalSeconds} s después de terminar la anterior. Tiempo máximo por solicitud: ${data.timeoutSeconds} s.`;
 }
 
 async function refresh() {
@@ -39,11 +47,12 @@ async function refresh() {
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     render(await response.json());
     table.classList.remove('stale');
-    connection.className = '';
-    connection.textContent = `Panel conectado · actualizado a las ${new Date().toLocaleTimeString()}`;
+    connection.hidden = true;
+    connection.textContent = '';
   } catch (error) {
     connection.className = 'error';
-    connection.textContent = `No se puede actualizar el panel (${error.message}). Los resultados anteriores, si aparecen, están desactualizados.`;
+    connection.hidden = false;
+    connection.textContent = `No se puede actualizar (${error.message}). Los resultados mostrados están desactualizados.`;
     table.classList.add('stale');
   } finally {
     setTimeout(refresh, 5000);

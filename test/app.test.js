@@ -33,6 +33,19 @@ test('config defaults and explicit accepted codes', () => {
   }).services[0].acceptedStatusCodes, [200, 401]);
 });
 
+test('UI settings preserve defaults and accept per-site text', () => {
+  const config = configFor('https://example.com');
+  assert.deepEqual(config.ui, { eyebrow: 'DISPONIBILIDAD HTTP', title: 'Estado de servicios' });
+  assert.deepEqual(configFor('https://example.com', { ui: { title: ' Sede norte ' } }).ui,
+    { eyebrow: 'DISPONIBILIDAD HTTP', title: 'Sede norte' });
+  assert.deepEqual(configFor('https://example.com', {
+    ui: { title: '<b>Panel</b>', eyebrow: 'SITIO A' }
+  }).ui, { title: '<b>Panel</b>', eyebrow: 'SITIO A' });
+  for (const ui of [null, [], 'invalid', { title: '' }, { eyebrow: 4 }]) {
+    assert.throws(() => configFor('https://example.com', { ui }));
+  }
+});
+
 for (const [label, invalid] of [
   ['empty service list', { services: [] }],
   ['missing name', { services: [{ url: 'https://example.com' }] }],
@@ -171,7 +184,9 @@ test('API and page expose fixed routes only and never accept visitor destination
     targetCalls++;
     response.end('ok');
   }));
-  const { server, monitor } = await createApp(configFor(target));
+  const { server, monitor } = await createApp(configFor(target, {
+    ui: { title: 'Sede norte', eyebrow: 'SERVICIOS' }
+  }));
   const url = await listen(t, server);
   t.after(() => monitor.stop());
   const pending = await fetch(`${url}/api/status?url=${encodeURIComponent(target)}`);
@@ -182,6 +197,7 @@ test('API and page expose fixed routes only and never accept visitor destination
   const response = await fetch(`${url}/api/status`);
   const body = await response.text();
   assert.equal(JSON.parse(body).services[0].state, 'up');
+  assert.deepEqual(JSON.parse(body).ui, { title: 'Sede norte', eyebrow: 'SERVICIOS' });
   assert.ok(!body.includes(target));
   assert.equal(response.headers.get('cache-control'), 'no-store');
   const page = await fetch(url);

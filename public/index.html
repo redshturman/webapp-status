@@ -10,11 +10,10 @@
 <body>
   <main>
     <header>
-      <p class="eyebrow">DISPONIBILIDAD HTTP</p>
-      <h1>Estado de servicios</h1>
-      <p>Comprobaciones desde este servidor, no desde tu navegador.</p>
+      <p class="eyebrow" id="eyebrow">DISPONIBILIDAD HTTP</p>
+      <h1 id="title">Estado de servicios</h1>
     </header>
-    <p id="connection" role="status">Conectando con el panel…</p>
+    <p id="connection" role="status" hidden></p>
     <div class="table-wrap">
       <table>
         <caption class="sr-only">Último resultado de cada servicio</caption>
@@ -24,10 +23,6 @@
         <tbody id="services"></tbody>
       </table>
     </div>
-    <footer>
-      <p id="cadence"></p>
-      <p>Un HTTP aceptado no garantiza que todas las funciones del servicio estén operativas.</p>
-    </footer>
   </main>
 </body>
 </html>
